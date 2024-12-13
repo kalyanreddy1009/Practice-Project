@@ -1,0 +1,26 @@
+pipeline {
+  agent any
+  stages {
+    stage('Build') {
+      steps {
+        sh 'mvn clean package'
+      }
+    }
+    stage('Docker Build') {
+      steps {
+        sh '''
+          docker build -t gcr.io/maximal-cabinet-442109-b6/webapp:v1 .
+          docker push gcr.io/maximal-cabinet-442109-b6/webapp:v1
+        '''
+      }
+    }
+    stage('Deploy to GKE') {
+      steps {
+        sh '''
+          kubectl apply -f deployment.yaml
+          kubectl apply -f service.yaml
+        '''
+      }
+    }
+  }
+}
