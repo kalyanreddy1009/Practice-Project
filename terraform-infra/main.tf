@@ -30,6 +30,12 @@ resource "google_container_cluster" "gke_cluster" {
   name     = "webapp-gke-cluster"
   location = var.region
 
+  # Enable private cluster (no external IPs for GKE nodes)
+  private_cluster_config {
+    enable_private_nodes   = true  # Disable external IPs for nodes
+    enable_private_endpoint = false  # External access to control plane is disabled
+  }
+
   node_config {
     machine_type = "e2-medium"
     disk_size_gb = 50
@@ -37,6 +43,7 @@ resource "google_container_cluster" "gke_cluster" {
       "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
+
   initial_node_count = 3
 }
 
@@ -56,7 +63,7 @@ resource "google_compute_instance" "jenkins" {
   network_interface {
     network    = google_compute_network.vpc_network.id
     subnetwork = google_compute_subnetwork.subnet.id
-    access_config {}
+    # Removed access_config to avoid external IP assignment
   }
 
   tags = ["http-server"]
