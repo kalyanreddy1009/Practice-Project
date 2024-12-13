@@ -9,13 +9,13 @@ provider "google" {
 provider "google" {
   project = var.project_id
   region  = var.region
-=======
+
 # Alternative provider configuration with alias
 provider "google" {
   alias       = "secondary"  # Use an alias to distinguish this provider configuration
   project     = var.project_id
   region      = var.region
->>>>>>> ed5a13c8466865d2444a1cbe249dd20f15c3ada5
+
 }
 
 resource "google_compute_network" "vpc_network" {
