@@ -37,6 +37,7 @@ resource "google_container_cluster" "gke_cluster" {
       "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
+ initial_node_count = 3
 }
 
 resource "google_compute_instance" "jenkins" {
