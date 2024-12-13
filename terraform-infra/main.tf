@@ -5,7 +5,7 @@ provider "google" {
   region      = "us-central1"
 }
 
-<<<<<<< HEAD
+
 provider "google" {
   project = var.project_id
   region  = var.region
