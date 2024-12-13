@@ -2,7 +2,7 @@
 provider "google" {
   credentials = file("./maximal-cabinet-442109-b6-38a77e8b7647.json")
   project     = "maximal-cabinet-442109-b6"
-  region      = "us-south1"
+  region      = "us-east1"
 }
 
 # Alternative provider configuration with alias
