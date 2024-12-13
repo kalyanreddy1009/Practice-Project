@@ -1,19 +1,30 @@
+# Default provider configuration
 provider "google" {
   credentials = file("./maximal-cabinet-442109-b6-38a77e8b7647.json")
   project     = "maximal-cabinet-442109-b6"
   region      = "us-central1"
 }
 
+<<<<<<< HEAD
 provider "google" {
   project = var.project_id
   region  = var.region
+=======
+# Alternative provider configuration with alias
+provider "google" {
+  alias       = "secondary"  # Use an alias to distinguish this provider configuration
+  project     = var.project_id
+  region      = var.region
+>>>>>>> ed5a13c8466865d2444a1cbe249dd20f15c3ada5
 }
 
 resource "google_compute_network" "vpc_network" {
-  name = "webapp-vpc"
+  provider = google  # This uses the default provider configuration
+  name     = "webapp-vpc"
 }
 
 resource "google_compute_subnetwork" "subnet" {
+  provider      = google  # This uses the default provider configuration
   name          = "webapp-subnet"
   ip_cidr_range = "10.0.0.0/16"
   network       = google_compute_network.vpc_network.id
@@ -21,7 +32,8 @@ resource "google_compute_subnetwork" "subnet" {
 }
 
 resource "google_container_cluster" "gke_cluster" {
-  name     = "webapp-gke-cluster"
+  provider = google  # This uses the default provider configuration
+  name     = "webapp-gke-clusterr"
   location = var.region
 
   node_config {
@@ -31,9 +43,11 @@ resource "google_container_cluster" "gke_cluster" {
       "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
+ initial_node_count = 3
 }
 
 resource "google_compute_instance" "jenkins" {
+  provider = google  # This uses the default provider configuration
   name         = "jenkins-server"
   machine_type = "e2-medium"
   zone         = var.zone
