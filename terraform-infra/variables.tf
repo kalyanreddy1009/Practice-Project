@@ -3,10 +3,10 @@ variable "project_id" {
 }
 
 variable "region" {
-  default = "us-west1"
+  default = "us-cenral1"
 }
 
 variable "zone" {
-  default = "us-west1-a"
+  default = "us-central1-a"
 }
 
