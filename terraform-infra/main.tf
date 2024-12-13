@@ -5,17 +5,11 @@ provider "google" {
   region      = "us-central1"
 }
 
-<<<<<<< HEAD
-provider "google" {
-  project = var.project_id
-  region  = var.region
-=======
 # Alternative provider configuration with alias
 provider "google" {
   alias       = "secondary"  # Use an alias to distinguish this provider configuration
   project     = var.project_id
   region      = var.region
->>>>>>> ed5a13c8466865d2444a1cbe249dd20f15c3ada5
 }
 
 resource "google_compute_network" "vpc_network" {
@@ -33,7 +27,7 @@ resource "google_compute_subnetwork" "subnet" {
 
 resource "google_container_cluster" "gke_cluster" {
   provider = google  # This uses the default provider configuration
-  name     = "webapp-gke-clusterr"
+  name     = "webapp-gke-cluster"
   location = var.region
 
   node_config {
@@ -43,7 +37,7 @@ resource "google_container_cluster" "gke_cluster" {
       "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
- initial_node_count = 3
+  initial_node_count = 3
 }
 
 resource "google_compute_instance" "jenkins" {
