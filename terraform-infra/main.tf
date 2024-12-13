@@ -27,7 +27,7 @@ resource "google_compute_subnetwork" "subnet" {
 
 resource "google_container_cluster" "gke_cluster" {
   provider = google  # This uses the default provider configuration
-  name     = "webapp-gke-cluster"
+  name     = "webapp-gke-clusterr"
   location = var.region
 
   node_config {
