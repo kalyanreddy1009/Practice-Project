@@ -21,7 +21,7 @@ resource "google_project_iam_member" "sa_role" {
 resource "google_container_cluster" "primary" {
   name               = var.cluster_name  # Cluster name from variables.tf
   location           = var.region        # Region from variables.tf
-  initial_node_count = 1                 # Reduced number of nodes for a minimal setup
+  initial_node_count = 3                 # Reduced number of nodes for a minimal setup
 
   deletion_protection = false  # Prevent accidental deletion
 
