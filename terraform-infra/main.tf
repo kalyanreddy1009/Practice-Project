@@ -77,7 +77,7 @@ resource "google_compute_instance" "jenkins_agent" {
     }
   }
 
- metadata_startup_script = <<-EOT
+metadata_startup_script = <<-EOT
   #!/bin/bash
   # Update system and install Java
   apt-get update -y
