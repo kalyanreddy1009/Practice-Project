@@ -34,6 +34,7 @@ resource "google_container_cluster" "primary" {
     enable_private_nodes = true  # This ensures that nodes only have internal IPs
     master_ipv4_cidr_block = "172.16.0.0/28"  # Custom CIDR block for master IPs
   }
+}
 
   # Optional: Remove the `enable_network_policy` if you're not using it
 }
