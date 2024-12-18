@@ -19,13 +19,14 @@ resource "google_project_iam_member" "sa_role" {
 
 # Create a GKE Cluster with a standard persistent disk (pd-standard)
 resource "google_container_cluster" "primary" {
+  name     = var.cluster_name  # Cluster name from variables.tf
+  location = var.region        # Region from variables.tf
   name               = var.cluster_name  # Cluster name from variables.tf
   location           = var.region        # Region from variables.tf
   initial_node_count = 3
 
   # Set deletion protection to false (to allow cluster deletion)
   deletion_protection = false  # Prevent accidental deletion
-
   node_config {
     machine_type = "e2-medium"  # Change machine type as needed
     disk_type    = "pd-standard" # Use standard persistent disks instead of SSD
@@ -55,49 +56,3 @@ resource "google_storage_bucket" "app_storage" {
   location      = "US"                 # Location set as "US" for simplicity
   force_destroy = true                 # Allow deletion of non-empty buckets
 }
-
-# Create a Jenkins Agent VM
-resource "google_compute_instance" "jenkins_agent" {
-  name         = "jenkins-agent"  # Name of the VM instance
-  machine_type = "e2-medium"      # Choose machine type (e.g., e2-medium)
-  zone         = var.zone         # The zone where the VM should be created
-
-  # Define the VM's boot disk
-  boot_disk {
-    initialize_params {
-      image = "ubuntu-2004-focal-v20210927"  # Use Ubuntu image (you can change this to another OS image)
-    }
-  }
-
-  # Networking configuration
-  network_interface {
-    network = "default"
-    access_config {
-      // Assign a public IP to the Jenkins agent
-    }
-  }
-
-  # Metadata startup script to install necessary dependencies (Java, Jenkins agent, etc.)
-  metadata_startup_script = <<-EOT
-    #!/bin/bash
-    # Update system and install Java
-    apt-get update -y
-    apt-get install -y openjdk-11-jdk curl
-
-    # Install Jenkins agent dependencies
-    curl -fsSL https://pkg.jenkins.io/debian/jenkins.io.key | tee /etc/apt/trusted.gpg.d/jenkins.asc
-    sh -c 'echo deb http://pkg.jenkins.io/debian/ stable main > /etc/apt/sources.list.d/jenkins.list'
-    apt-get update
-    apt-get install -y jenkins
-
-    # Use Terraform variables for Jenkins details
-    JENKINS_MASTER_URL="${var.jenkins_master_url}"
-    JENKINS_AGENT_NAME="${var.jenkins_agent_name}"
-    JENKINS_AGENT_SECRET="${var.jenkins_agent_secret}"
-
-    # Download the Jenkins agent JAR and start the agent
-    curl -O ${JENKINS_MASTER_URL}/jnlpJars/agent.jar
-    java -jar agent.jar -jnlpUrl ${JENKINS_MASTER_URL}/computer/${JENKINS_AGENT_NAME}/slave-agent.jnlp -secret ${JENKINS_AGENT_SECRET} -workDir /home/jenkins
-  EOT
-}  # <-- Ensure this closing brace is present for the resource block
-
