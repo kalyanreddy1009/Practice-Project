@@ -90,11 +90,12 @@ resource "google_compute_instance" "jenkins_agent" {
     apt-get update
     apt-get install -y jenkins
 
-    # Download the Jenkins agent JAR and start the agent (replace with your Jenkins master URL and agent details)
-    JENKINS_MASTER_URL="http://your-jenkins-server:8080"
-    JENKINS_AGENT_NAME="my-agent"
-    JENKINS_AGENT_SECRET="your-agent-secret"
+    # Use Terraform variables for Jenkins details
+    JENKINS_MASTER_URL="${var.jenkins_master_url}"
+    JENKINS_AGENT_NAME="${var.jenkins_agent_name}"
+    JENKINS_AGENT_SECRET="${var.jenkins_agent_secret}"
 
+    # Download the Jenkins agent JAR and start the agent
     curl -O ${JENKINS_MASTER_URL}/jnlpJars/agent.jar
     java -jar agent.jar -jnlpUrl ${JENKINS_MASTER_URL}/computer/${JENKINS_AGENT_NAME}/slave-agent.jnlp -secret ${JENKINS_AGENT_SECRET} -workDir /home/jenkins
   EOT
