@@ -11,9 +11,22 @@ resource "google_service_account" "sa" {
 }
 
 # Create IAM roles for the service account
-resource "google_project_iam_member" "sa_role" {
+resource "google_project_iam_member" "sa_role_container_admin" {
   project = "maximal-cabinet-442109-b6"  # Your GCP project ID
-  role    = "roles/container.admin"      # You can change the IAM role as per your requirements
+  role    = "roles/container.admin"      # Container Admin role
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+
+# Additional IAM roles for compute and storage
+resource "google_project_iam_member" "sa_role_compute_admin" {
+  project = "maximal-cabinet-442109-b6"
+  role    = "roles/compute.admin"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+
+resource "google_project_iam_member" "sa_role_storage_admin" {
+  project = "maximal-cabinet-442109-b6"
+  role    = "roles/storage.admin"
   member  = "serviceAccount:${google_service_account.sa.email}"
 }
 
