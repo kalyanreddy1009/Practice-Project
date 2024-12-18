@@ -29,6 +29,7 @@ resource "google_container_cluster" "primary" {
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
+address = "INTERNAL"  # Use internal IPs for the nodes (Reduces external IP usage)
   }
 
   # Optional: Remove the `enable_network_policy` if you're not using it
