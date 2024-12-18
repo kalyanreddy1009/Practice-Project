@@ -1,0 +1,124 @@
+Configuration Summary
+1. Namespace
+
+    Purpose: Logical isolation of resources.
+    Created Namespace: prod
+    Command to Create Namespace:
+
+    kubectl create namespace prod
+
+2. Service Account
+
+    Purpose: To authenticate applications or pods with the Kubernetes API securely.
+    Created Service Account: app-sa in the prod namespace.
+    Command to Create Service Account:
+
+    kubectl create serviceaccount app-sa -n prod
+
+3. Role
+
+    Purpose: Grants permissions to interact with specific Kubernetes resources within the prod namespace.
+    Role Name: app-role
+    Permissions:
+        Resources: pods, services (core API), and deployments (apps API).
+        Verbs: get, list, watch, create, delete.
+    YAML Definition:
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: prod
+  name: app-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["get", "list", "watch", "create", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch", "create", "delete"]
+
+Command to Apply Role:
+
+    kubectl apply -f role.yaml
+
+4. RoleBinding
+
+    Purpose: Binds the app-role to the app-sa service account, enabling it to use the defined permissions.
+    RoleBinding Name: app-rolebinding
+    YAML Definition:
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: prod
+  name: app-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: app-sa
+  namespace: prod
+roleRef:
+  kind: Role
+  name: app-role
+  apiGroup: rbac.authorization.k8s.io
+
+Command to Apply RoleBinding:
+
+    kubectl apply -f rolebinding.yaml
+
+Validation Steps
+
+    Verify Namespace:
+
+kubectl get namespaces
+
+Verify Service Account:
+
+kubectl get serviceaccounts -n prod
+
+Check Roles and RoleBindings:
+
+kubectl get roles -n prod
+kubectl get rolebindings -n prod
+
+Test the Service Account: Deploy a test pod using the app-sa service account:
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pod
+  namespace: prod
+spec:
+  serviceAccountName: app-sa
+  containers:
+  - name: test-container
+    image: nginx
+
+Save it as test-pod.yaml and apply:
+
+    kubectl apply -f test-pod.yaml
+
+Why This Setup?
+
+    Minimal yet Flexible: Focuses on a single namespace (prod) to organize resources.
+    Secure: Limits permissions using RBAC, with app-sa only allowed to manage pods, services, and deployments.
+    Scalable: Allows easy addition of new namespaces, roles, or service accounts in the future if your project grows.
+
+Future Reference Commands
+
+    Create Namespace:
+
+kubectl create namespace <namespace-name>
+
+Create Service Account:
+
+kubectl create serviceaccount <sa-name> -n <namespace-name>
+
+Apply a Role or RoleBinding:
+
+kubectl apply -f <file-name>.yaml
+
+Verify Resources:
+
+    kubectl get <resource-type> -n <namespace-name>
+
+This setup ensures a clean and secure foundation for managing your Kubernetes cluster. Let me know if you'd like further assistance!
