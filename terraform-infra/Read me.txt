@@ -1,0 +1,62 @@
+Notes: Terraform Workflow for GCP Project Deployment
+Objective
+
+You deployed and managed resources on Google Cloud Platform (GCP) using Terraform, including creating a Kubernetes Engine (GKE) cluster and a Google Cloud Storage (GCS) bucket. The region and zone for this project were set to us-west1 and us-west1-a.
+Key Steps
+
+    Terraform Initialization
+        Ran terraform init to initialize the Terraform workspace and download necessary provider plugins (Google provider in this case).
+
+    Provider Configuration
+        Specified the google provider in the main.tf file with:
+            Project ID: maximal-cabinet-442109-b6
+            Region: us-west1
+            Zone: us-west1-a
+
+    Service Account Setup
+        Configured a service account (terraform-sa@maximal-cabinet-442109-b6.iam.gserviceaccount.com) with the role roles/container.admin to allow Terraform to interact with GCP resources.
+
+    Resource Creation
+        GKE Cluster (google_container_cluster)
+            Created a Kubernetes cluster with the following specifications:
+                Cluster name: terraform-cluster
+                Location: us-west1
+                3 initial nodes with e2-medium machine type and pd-standard disks.
+                Enabled private nodes with private_cluster_config.
+                Configured master_authorized_networks_config to allow unrestricted access (0.0.0.0/0) for simplicity during testing.
+        GCS Bucket (google_storage_bucket)
+            Created a storage bucket for storing Terraform state or other resources:
+                Name: maximal-cabinet-442109-b6-tf-state
+                Location: US
+                force_destroy set to true to delete non-empty buckets during cleanup.
+
+    Troubleshooting and Adjustments
+        Adjusted disk types to pd-standard to reduce quota usage.
+        Resolved errors related to unsupported arguments (private_cluster, enabled) by aligning the configuration with the latest Terraform and GCP API schema.
+        Ensured deletion_protection was explicitly set to false to allow cluster deletion when necessary.
+        Fixed issues with kubectl by properly authenticating with the GKE cluster:
+            Used gcloud container clusters get-credentials to connect the local Kubernetes client with the created cluster.
+
+    Final Outputs
+        Verified cluster endpoint, bucket name, and service account email using outputs.tf definitions.
+
+Commands Used
+
+    Terraform Commands
+        terraform init: Initialize Terraform environment.
+        terraform plan: Preview changes to be made to GCP resources.
+        terraform apply: Deploy resources as per configuration.
+        terraform destroy: Remove all deployed resources.
+
+    Kubernetes Authentication
+        gcloud container clusters get-credentials terraform-cluster --region us-west1: Authenticate kubectl with the GKE cluster.
+
+    Kubernetes Commands
+        kubectl get nodes: View the status of nodes in the cluster.
+        kubectl get pods: Check running pods.
+
+Lessons Learned
+
+    Quota Management: Limited quotas in GCP's free/student accounts required careful configuration adjustments (e.g., reducing node counts, changing disk types).
+    Terraform Errors: Familiarity with error messages helped resolve issues like unsupported arguments and blocks.
+    GKE Authentication: Properly authenticating kubectl to manage the cluster was critical for verifying deployments.
