@@ -1,4 +1,3 @@
-# main.tf
 provider "google" {
   project = "maximal-cabinet-442109-b6"  # Your GCP project ID
   region  = var.region                    # Region from variables.tf
@@ -41,10 +40,13 @@ resource "google_container_cluster" "primary" {
 
   master_authorized_networks_config {
     cidr_blocks {
-      cidr_block = "0.0.0.0/0"  # Allows all IPs, replace with your IP range for restricted access
-      display_name = "Allow All"  # Optional: add a display name
+      cidr_block = "203.0.113.0/24"  # Replace with your trusted IP range for restricted access
+      display_name = "My Trusted Network"
     }
   }
+
+  # Disable public endpoint access
+  remove_default_node_pool = true  # Optional: disables default node pool for more control
 }
 
 # Create a GCS Bucket for Terraform state (optional but recommended)
@@ -87,10 +89,10 @@ resource "google_compute_instance" "jenkins" {
     access_config {}
   }
 
-  tags = ["http-server"]
+  tags = ["http-server", "ssh-server"]  # Added ssh-server for firewall targeting
 }
 
-# Allow HTTP traffic to Jenkins
+# Allow HTTP traffic to Jenkins (port 80)
 resource "google_compute_firewall" "allow_http" {
   name    = "allow-http"
   network = google_compute_network.vpc_network.id
@@ -100,4 +102,16 @@ resource "google_compute_firewall" "allow_http" {
   }
   source_ranges = ["0.0.0.0/0"]
   target_tags   = ["http-server"]
+}
+
+# Allow SSH traffic to Jenkins (port 22) - Optional: Restrict to specific IP ranges
+resource "google_compute_firewall" "allow_ssh" {
+  name    = "allow-ssh"
+  network = google_compute_network.vpc_network.id
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+  source_ranges = ["203.0.113.0/24"]  # Restrict SSH access to a specific IP range
+  target_tags   = ["ssh-server"]
 }
