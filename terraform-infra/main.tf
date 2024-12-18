@@ -99,5 +99,5 @@ resource "google_compute_instance" "jenkins_agent" {
     curl -O ${JENKINS_MASTER_URL}/jnlpJars/agent.jar
     java -jar agent.jar -jnlpUrl ${JENKINS_MASTER_URL}/computer/${JENKINS_AGENT_NAME}/slave-agent.jnlp -secret ${JENKINS_AGENT_SECRET} -workDir /home/jenkins
   EOT
-}  # <-- Make sure this closing brace is here
+}  # <-- Ensure this closing brace is present for the resource block
 
