@@ -39,7 +39,10 @@ resource "google_container_cluster" "primary" {
 
   # Optional: You can enable or configure master authorized networks separately
   master_authorized_networks_config {
-    enabled = false  # Set this to true if you want to restrict master access
+    cidr_blocks {
+      cidr_block = "0.0.0.0/0"  # Allows all IPs, replace with your IP range for restricted access
+      display_name = "Allow All"  # Optional: add a display name
+    }
   }
 }
 
