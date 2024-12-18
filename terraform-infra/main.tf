@@ -101,8 +101,4 @@ resource "google_compute_instance" "jenkins_agent" {
   EOT
 }
 
-# Output the public IP of the Jenkins agent (if needed for direct access)
-output "jenkins_agent_ip" {
-  description = "Public IP of the Jenkins agent"
-  value       = google_compute_instance.jenkins_agent.network_interface[0].access_config[0].nat_ip
-}
+
