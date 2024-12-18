@@ -1,5 +1,3 @@
-# main.tf
-
 provider "google" {
   project = "maximal-cabinet-442109-b6"  # Your GCP project ID
   region  = var.region                    # Region from variables.tf
@@ -10,7 +8,6 @@ provider "google" {
 resource "google_service_account" "sa" {
   account_id   = "terraform-sa"  # The account ID (does not need to be the full email)
   display_name = "Terraform Service Account"
-  email        = "terraform-sa@maximal-cabinet-442109-b6.iam.gserviceaccount.com"  # Provided email
 }
 
 # Create IAM roles for the service account
@@ -33,8 +30,7 @@ resource "google_container_cluster" "primary" {
     ]
   }
 
-  # Enable GKE features like the API
-  enable_network_policy = true
+  # Optional: Remove the `enable_network_policy` if you're not using it
 }
 
 # Create a GCS Bucket for Terraform state (optional but recommended)
@@ -43,4 +39,3 @@ resource "google_storage_bucket" "app_storage" {
   location      = "US"                 # Location set as "US" for simplicity
   force_destroy = true                 # Allow deletion of non-empty buckets
 }
-
