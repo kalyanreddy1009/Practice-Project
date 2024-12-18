@@ -1,7 +1,21 @@
-output "jenkins_public_ip" {
-  value = length(google_compute_instance.jenkins.network_interface[0].access_config) > 0 ? google_compute_instance.jenkins.network_interface[0].access_config[0].nat_ip : "No public IP assigned"
+# outputs.tf
+
+output "cluster_name" {
+  value = google_container_cluster.primary.name
 }
 
-output "jenkins_internal_ip" {
-  value = google_compute_instance.jenkins.network_interface[0].network_ip
+output "cluster_endpoint" {
+  value = google_container_cluster.primary.endpoint
+}
+
+output "cluster_ca_certificate" {
+  value = google_container_cluster.primary.master_auth.0.cluster_ca_certificate
+}
+
+output "service_account_email" {
+  value = google_service_account.sa.email
+}
+
+output "bucket_name" {
+  value = google_storage_bucket.app_storage.name
 }
