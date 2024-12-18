@@ -77,24 +77,27 @@ resource "google_compute_instance" "jenkins_agent" {
     }
   }
 
-metadata_startup_script = <<-EOT
-  #!/bin/bash
-  # Update system and install Java
-  apt-get update -y
-  apt-get install -y openjdk-11-jdk curl
+  # Metadata startup script to install necessary dependencies (Java, Jenkins agent, etc.)
+  metadata_startup_script = <<-EOT
+    #!/bin/bash
+    # Update system and install Java
+    apt-get update -y
+    apt-get install -y openjdk-11-jdk curl
 
-  # Install Jenkins agent dependencies
-  curl -fsSL https://pkg.jenkins.io/debian/jenkins.io.key | tee /etc/apt/trusted.gpg.d/jenkins.asc
-  sh -c 'echo deb http://pkg.jenkins.io/debian/ stable main > /etc/apt/sources.list.d/jenkins.list'
-  apt-get update
-  apt-get install -y jenkins
+    # Install Jenkins agent dependencies
+    curl -fsSL https://pkg.jenkins.io/debian/jenkins.io.key | tee /etc/apt/trusted.gpg.d/jenkins.asc
+    sh -c 'echo deb http://pkg.jenkins.io/debian/ stable main > /etc/apt/sources.list.d/jenkins.list'
+    apt-get update
+    apt-get install -y jenkins
 
-  # Use Terraform variables for Jenkins details
-  JENKINS_MASTER_URL="${var.jenkins_master_url}"
-  JENKINS_AGENT_NAME="${var.jenkins_agent_name}"
-  JENKINS_AGENT_SECRET="${var.jenkins_agent_secret}"
+    # Use Terraform variables for Jenkins details
+    JENKINS_MASTER_URL="${var.jenkins_master_url}"
+    JENKINS_AGENT_NAME="${var.jenkins_agent_name}"
+    JENKINS_AGENT_SECRET="${var.jenkins_agent_secret}"
 
-  # Download the Jenkins agent JAR and start the agent
-  curl -O ${JENKINS_MASTER_URL}/jnlpJars/agent.jar
-  java -jar agent.jar -jnlpUrl ${JENKINS_MASTER_URL}/computer/${JENKINS_AGENT_NAME}/slave-agent.jnlp -secret ${JENKINS_AGENT_SECRET} -workDir /home/jenkins
-EOT
+    # Download the Jenkins agent JAR and start the agent
+    curl -O ${JENKINS_MASTER_URL}/jnlpJars/agent.jar
+    java -jar agent.jar -jnlpUrl ${JENKINS_MASTER_URL}/computer/${JENKINS_AGENT_NAME}/slave-agent.jnlp -secret ${JENKINS_AGENT_SECRET} -workDir /home/jenkins
+  EOT
+}  # <-- Make sure this closing brace is here
+
