@@ -29,10 +29,10 @@ resource "google_container_cluster" "primary" {
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
-# Enable private nodes, which will disable external IPs
-  private_cluster_config {
-    enable_private_nodes = true  # This ensures that nodes only have internal IPs
-    master_ipv4_cidr_block = "172.16.0.0/28"  # Custom CIDR block for master IPs
+# Enable private nodes (nodes will only have internal IPs)
+  private_cluster = true
+  master_authorized_networks_config {
+    enabled = false  # You can set this to true if you want to restrict master access
   }
 }
 
