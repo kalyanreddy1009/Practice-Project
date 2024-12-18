@@ -29,14 +29,18 @@ resource "google_container_cluster" "primary" {
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
-# Enable private nodes (nodes will only have internal IPs)
-  private_cluster = true
-  master_authorized_networks_config {
-    enabled = false  # You can set this to true if you want to restrict master access
   }
-}
 
-  # Optional: Remove the `enable_network_policy` if you're not using it
+  # Private cluster configuration: Ensure nodes only have internal IPs
+  private_cluster_config {
+    enable_private_nodes = true  # Nodes will only have internal IPs
+    master_ipv4_cidr_block = "172.16.0.0/28"  # Custom CIDR block for master's IPs (adjust as needed)
+  }
+
+  # Optional: You can enable or configure master authorized networks separately
+  master_authorized_networks_config {
+    enabled = false  # Set this to true if you want to restrict master access
+  }
 }
 
 # Create a GCS Bucket for Terraform state (optional but recommended)
