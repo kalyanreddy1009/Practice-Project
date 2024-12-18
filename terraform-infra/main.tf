@@ -19,14 +19,13 @@ resource "google_project_iam_member" "sa_role" {
 
 # Create a GKE Cluster with a standard persistent disk (pd-standard)
 resource "google_container_cluster" "primary" {
-  name     = var.cluster_name  # Cluster name from variables.tf
-  location = var.region        # Region from variables.tf
   name               = var.cluster_name  # Cluster name from variables.tf
   location           = var.region        # Region from variables.tf
   initial_node_count = 3
 
   # Set deletion protection to false (to allow cluster deletion)
   deletion_protection = false  # Prevent accidental deletion
+
   node_config {
     machine_type = "e2-medium"  # Change machine type as needed
     disk_type    = "pd-standard" # Use standard persistent disks instead of SSD
