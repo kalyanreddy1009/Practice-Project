@@ -17,7 +17,7 @@ resource "google_project_iam_member" "sa_role" {
   member  = "serviceAccount:${google_service_account.sa.email}"
 }
 
-# Create a GKE Cluster
+# Create a GKE Cluster with a standard persistent disk (pd-standard)
 resource "google_container_cluster" "primary" {
   name     = var.cluster_name  # Cluster name from variables.tf
   location = var.region        # Region from variables.tf
@@ -25,6 +25,7 @@ resource "google_container_cluster" "primary" {
 
   node_config {
     machine_type = "e2-medium"  # Change machine type as needed
+    disk_type    = "pd-standard" # Use standard persistent disks instead of SSD
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
