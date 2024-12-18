@@ -1,3 +1,4 @@
+#main.tf
 provider "google" {
   project = "maximal-cabinet-442109-b6"  # Your GCP project ID
   region  = var.region                    # Region from variables.tf
@@ -21,13 +22,13 @@ resource "google_project_iam_member" "sa_role" {
 resource "google_container_cluster" "primary" {
   name               = var.cluster_name  # Cluster name from variables.tf
   location           = var.region        # Region from variables.tf
-  initial_node_count = 3
+  initial_node_count = 1                 # Reduced number of nodes for a smaller setup
 
   # Set deletion protection to false (to allow cluster deletion)
   deletion_protection = false  # Prevent accidental deletion
 
   node_config {
-    machine_type = "e2-medium"  # Change machine type as needed
+    machine_type = "e2-small"  # Smaller machine type
     disk_type    = "pd-standard" # Use standard persistent disks instead of SSD
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
@@ -54,4 +55,38 @@ resource "google_storage_bucket" "app_storage" {
   name          = var.bucket_name      # Bucket name from variables.tf
   location      = "US"                 # Location set as "US" for simplicity
   force_destroy = true                 # Allow deletion of non-empty buckets
+}
+
+# Add Jenkins Server Instance with minimal resources
+resource "google_compute_instance" "jenkins" {
+  name         = "jenkins-server"
+  machine_type = "e2-micro"  # Very minimal machine type suitable for smaller setups
+  zone         = var.zone
+
+  boot_disk {
+    initialize_params {
+      image = "projects/debian-cloud/global/images/family/debian-11"
+      size  = 10  # Reduced disk size to save on resources
+    }
+  }
+
+  network_interface {
+    network    = google_compute_network.vpc_network.id
+    subnetwork = google_compute_subnetwork.subnet.id
+    access_config {}
+  }
+
+  tags = ["http-server"]
+}
+
+# Allow HTTP traffic to Jenkins
+resource "google_compute_firewall" "allow_http" {
+  name    = "allow-http"
+  network = google_compute_network.vpc_network.id
+  allow {
+    protocol = "tcp"
+    ports    = ["80"]
+  }
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["http-server"]
 }
