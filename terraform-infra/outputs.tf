@@ -8,9 +8,9 @@ output "cluster_endpoint" {
   value = google_container_cluster.primary.endpoint
 }
 
-# Output the kubeconfig for the cluster
-output "cluster_kubeconfig" {
-  value = google_container_cluster.primary.kube_config.0.raw_kube_config
+# Output the cluster CA certificate
+output "cluster_ca_certificate" {
+  value = google_container_cluster.primary.cluster_ca_certificate
 }
 
 # Output the service account email
