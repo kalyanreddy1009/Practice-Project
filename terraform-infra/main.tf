@@ -1,7 +1,5 @@
-# main.tf
-
 provider "google" {
-  credentials = file(var.gcp_credentials_file) # Path to your key file from variable
+  credentials = google_service_account_key.terraform_sa_key.private_key # Use the private key of the created service account
   project     = var.gcp_project
   region      = var.gcp_region
 }
@@ -55,7 +53,7 @@ resource "google_project_service" "storage_api" {
   service = "storage.googleapis.com"
 }
 
-# Kubernetes provider configuration
+# Kubernetes provider configuration using the service account
 provider "kubernetes" {
   host                   = google_container_cluster.primary.endpoint
   cluster_ca_certificate = base64decode(google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
