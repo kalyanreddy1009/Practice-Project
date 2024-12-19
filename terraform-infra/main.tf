@@ -1,33 +1,32 @@
 provider "google" {
-  project = "maximal-cabinet-442109-b6"  # Your GCP project ID
-  region  = var.region                    # Region from variables.tf
-  zone    = var.zone                      # Zone from variables.tf
+  project = var.project_id                  # GCP Project ID from variables.tf
+  region  = var.region                      # Region from variables.tf
+  zone    = var.zone                        # Zone from variables.tf
 }
 
 # Use existing Service Account (terraform-sa@maximal-cabinet-442109-b6.iam.gserviceaccount.com)
-resource "google_service_account" "sa" {
-  account_id   = "terraform-sa"  # The account ID (does not need to be the full email)
-  display_name = "Terraform Service Account"
+data "google_service_account" "sa" {
+  email = "terraform-sa@maximal-cabinet-442109-b6.iam.gserviceaccount.com"
 }
 
 # Create IAM roles for the service account
 resource "google_project_iam_member" "sa_role_container_admin" {
-  project = "maximal-cabinet-442109-b6"  # Your GCP project ID
+  project = var.project_id
   role    = "roles/container.admin"      # Container Admin role
-  member  = "serviceAccount:${google_service_account.sa.email}"
+  member  = "serviceAccount:${data.google_service_account.sa.email}"
 }
 
 # Additional IAM roles for compute and storage
 resource "google_project_iam_member" "sa_role_compute_admin" {
-  project = "maximal-cabinet-442109-b6"
+  project = var.project_id
   role    = "roles/compute.admin"
-  member  = "serviceAccount:${google_service_account.sa.email}"
+  member  = "serviceAccount:${data.google_service_account.sa.email}"
 }
 
 resource "google_project_iam_member" "sa_role_storage_admin" {
-  project = "maximal-cabinet-442109-b6"
+  project = var.project_id
   role    = "roles/storage.admin"
-  member  = "serviceAccount:${google_service_account.sa.email}"
+  member  = "serviceAccount:${data.google_service_account.sa.email}"
 }
 
 # Create a GKE Cluster with minimal resources
@@ -53,7 +52,7 @@ resource "google_container_cluster" "primary" {
 
   master_authorized_networks_config {
     cidr_blocks {
-      cidr_block = "203.0.113.0/24"  # Replace with your trusted IP range for restricted access
+      cidr_block = var.trusted_ip_range  # Trusted IP range from variables.tf
       display_name = "My Trusted Network"
     }
   }
@@ -83,7 +82,7 @@ resource "google_container_node_pool" "primary_pool" {
     auto_upgrade = true
   }
 
-  # Optional: Enable taints or other configurations for your node pool
+  depends_on = [google_container_cluster.primary]
 }
 
 # Create a GCS Bucket for Terraform state (optional but recommended)
@@ -104,7 +103,7 @@ resource "google_compute_subnetwork" "subnet" {
   name          = "subnet"
   region        = var.region
   network       = google_compute_network.vpc_network.id
-  ip_cidr_range = "10.0.0.0/24"  # Adjust the CIDR range as necessary
+  ip_cidr_range = var.subnet_cidr  # CIDR range from variables.tf
 }
 
 # Add Jenkins Server Instance with minimal resources
@@ -137,7 +136,7 @@ resource "google_compute_firewall" "allow_http" {
     protocol = "tcp"
     ports    = ["80"]
   }
-  source_ranges = ["0.0.0.0/0"]
+  source_ranges = var.http_source_ranges  # Restrict HTTP access using variables.tf
   target_tags   = ["http-server"]
 }
 
@@ -149,6 +148,6 @@ resource "google_compute_firewall" "allow_ssh" {
     protocol = "tcp"
     ports    = ["22"]
   }
-  source_ranges = ["203.0.113.0/24"]  # Restrict SSH access to a specific IP range
+  source_ranges = var.ssh_source_ranges  # Restrict SSH access using variables.tf
   target_tags   = ["ssh-server"]
 }
