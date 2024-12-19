@@ -34,7 +34,7 @@ resource "google_project_iam_member" "sa_role_storage_admin" {
 resource "google_container_cluster" "primary" {
   name               = var.cluster_name  # Cluster name from variables.tf
   location           = var.region        # Region from variables.tf
-  initial_node_count = 3                 # Reduced number of nodes for a minimal setup
+  initial_node_count = 1                 # Initially set to 1 node for creating node pool manually
 
   deletion_protection = false  # Prevent accidental deletion
 
@@ -60,6 +60,30 @@ resource "google_container_cluster" "primary" {
 
   # Disable public endpoint access
   remove_default_node_pool = true  # Optional: disables default node pool for more control
+}
+
+# Create a Node Pool with 3 instances
+resource "google_container_node_pool" "primary_pool" {
+  cluster = google_container_cluster.primary.name
+  location = var.region
+
+  name     = "primary-node-pool"
+  initial_node_count = 3  # Create 3 nodes
+
+  node_config {
+    machine_type = "e2-micro"  # Minimum machine type
+    disk_type    = "pd-standard" # Use standard persistent disks instead of SSD
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform"
+    ]
+  }
+
+  management {
+    auto_repair = true
+    auto_upgrade = true
+  }
+
+  # Optional: Enable taints or other configurations for your node pool
 }
 
 # Create a GCS Bucket for Terraform state (optional but recommended)
