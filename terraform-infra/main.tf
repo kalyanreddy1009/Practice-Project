@@ -1,7 +1,18 @@
 provider "google" {
-  credentials = file("<path-to-your-service-account-json-file>")
+  credentials = google_service_account_key.terraform_sa_key.private_key
   project     = "maximal-cabinet-442109-b6"
   region      = "us-central1"
+}
+
+# Create the service account for Terraform to use
+resource "google_service_account" "terraform_sa" {
+  account_id   = "terraform-sa"
+  display_name = "Terraform Service Account"
+}
+
+# Create a key for the service account
+resource "google_service_account_key" "terraform_sa_key" {
+  service_account_id = google_service_account.terraform_sa.name
 }
 
 # Create the GKE cluster
@@ -41,3 +52,4 @@ resource "google_project_service" "storage_api" {
   project = "maximal-cabinet-442109-b6"
   service = "storage.googleapis.com"
 }
+
