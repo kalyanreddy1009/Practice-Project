@@ -41,3 +41,8 @@ resource "google_project_service" "storage_api" {
   project = "maximal-cabinet-442109-b6"
   service = "storage.googleapis.com"
 }
+provider "kubernetes" {
+  host                   = google_container_cluster.primary.endpoint
+  cluster_ca_certificate = base64decode(google_container_cluster.primary.cluster_ca_certificate)
+  token                  = data.google_client_config.default.access_token
+}
