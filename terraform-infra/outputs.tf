@@ -13,6 +13,7 @@ output "cluster_ca_certificate" {
 output "bucket_name" {
   value = google_storage_bucket.app_storage.name
 }
+
 output "service_account_email" {
   value = data.google_service_account.sa.email
 }
