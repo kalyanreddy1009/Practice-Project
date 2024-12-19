@@ -21,6 +21,17 @@ resource "google_container_cluster" "primary" {
   }
 }
 
+# Create the service account for Terraform
+resource "google_service_account" "terraform_sa" {
+  account_id   = "terraform-sa"
+  display_name = "Terraform Service Account"
+}
+
+# Create a key for the service account
+resource "google_service_account_key" "terraform_sa_key" {
+  service_account_id = google_service_account.terraform_sa.name
+}
+
 # Create a Google Storage Bucket for Jenkins
 resource "google_storage_bucket" "jenkins_bucket" {
   name          = var.jenkins_bucket_name
@@ -47,7 +58,7 @@ resource "google_project_service" "storage_api" {
 # Kubernetes provider configuration
 provider "kubernetes" {
   host                   = google_container_cluster.primary.endpoint
-  cluster_ca_certificate = base64decode(google_container_cluster.primary.cluster_ca_certificate)
+  cluster_ca_certificate = base64decode(google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
   token                  = data.google_client_config.default.access_token
 }
 
