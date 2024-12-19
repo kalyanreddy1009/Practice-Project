@@ -6,7 +6,8 @@ provider "google" {
 
 # Use existing Service Account (terraform-sa@maximal-cabinet-442109-b6.iam.gserviceaccount.com)
 data "google_service_account" "sa" {
-  email = "terraform-sa@maximal-cabinet-442109-b6.iam.gserviceaccount.com"
+  account_id = "terraform-sa"               # Service account ID (without the project ID and domain part)
+  project    = var.project_id                # Specify the project for the service account lookup
 }
 
 # Create IAM roles for the service account
@@ -150,4 +151,24 @@ resource "google_compute_firewall" "allow_ssh" {
   }
   source_ranges = var.ssh_source_ranges  # Restrict SSH access using variables.tf
   target_tags   = ["ssh-server"]
+}
+
+output "cluster_name" {
+  value = google_container_cluster.primary.name
+}
+
+output "cluster_endpoint" {
+  value = google_container_cluster.primary.endpoint
+}
+
+output "cluster_ca_certificate" {
+  value = google_container_cluster.primary.master_auth.0.cluster_ca_certificate
+}
+
+output "bucket_name" {
+  value = google_storage_bucket.app_storage.name
+}
+
+output "service_account_email" {
+  value = data.google_service_account.sa.email
 }
