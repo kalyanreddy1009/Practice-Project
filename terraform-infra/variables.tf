@@ -25,4 +25,5 @@ variable "cluster_name" {
 }
 variable "project_id" {
   description = "The GCP project ID"
+  default     = "maximal-cabinet-442109-b6"
 }
