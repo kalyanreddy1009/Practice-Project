@@ -23,3 +23,6 @@ variable "cluster_name" {
   type        = string
   default     = "terraform-cluster"  # Default cluster name
 }
+variable "project_id" {
+  description = "The GCP project ID"
+}
