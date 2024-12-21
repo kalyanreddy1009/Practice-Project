@@ -1,63 +1,41 @@
 provider "google" {
-  credentials = google_service_account_key.terraform_sa_key.private_key # Use the private key of the created service account
-  project     = var.gcp_project
-  region      = var.gcp_region
+  credentials = file("/home/masanipavan/maximal-cabinet-442109-b6.json")
+  project     = "maximal-cabinet-442109-b6"
+  region      = "us-central1"
 }
 
-# Create the GKE cluster
-resource "google_container_cluster" "primary" {
-  name     = var.cluster_name
-  location = var.cluster_location
-
-  initial_node_count = var.node_count
-
+resource "google_container_cluster" "gke_cluster" {
+  name               = "web-app-cluster"
+  location           = "us-central1"
+  initial_node_count = 1
   node_config {
-    machine_type = var.machine_type
-    oauth_scopes = [
-      "https://www.googleapis.com/auth/cloud-platform",
-    ]
+    machine_type = "e2-medium"
   }
 }
 
-# Create the service account for Terraform
-resource "google_service_account" "terraform_sa" {
-  account_id   = "terraform-sa"
-  display_name = "Terraform Service Account"
+resource "google_compute_instance" "jenkins" {
+  name         = "jenkins-server"
+  machine_type = "e2-micro"
+  zone         = "us-central1-a"
+  
+  boot_disk {
+    initialize_params {
+      image = "projects/debian-cloud/global/images/family/debian-11"
+    }
+  }
+
+  network_interface {
+    network = "default"
+    access_config {}
+  }
 }
 
-# Create a key for the service account
-resource "google_service_account_key" "terraform_sa_key" {
-  service_account_id = google_service_account.terraform_sa.name
+resource "google_storage_bucket" "jenkins_artifacts" {
+  name          = "jenkins-artifacts-${random_id.bucket_id.hex}"
+  location      = "US"
+  storage_class = "STANDARD"
 }
 
-# Create a Google Storage Bucket for Jenkins
-resource "google_storage_bucket" "jenkins_bucket" {
-  name          = var.jenkins_bucket_name
-  location      = var.jenkins_bucket_location
-  force_destroy = var.force_destroy
+resource "random_id" "bucket_id" {
+  byte_length = 8
 }
-
-# Enable required APIs
-resource "google_project_service" "container_api" {
-  project = var.gcp_project
-  service = "container.googleapis.com"
-}
-
-resource "google_project_service" "compute_api" {
-  project = var.gcp_project
-  service = "compute.googleapis.com"
-}
-
-resource "google_project_service" "storage_api" {
-  project = var.gcp_project
-  service = "storage.googleapis.com"
-}
-
-# Kubernetes provider configuration using the service account
-provider "kubernetes" {
-  host                   = google_container_cluster.primary.endpoint
-  cluster_ca_certificate = base64decode(google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
-  token                  = data.google_client_config.default.access_token
-}
-
-data "google_client_config" "default" {}
