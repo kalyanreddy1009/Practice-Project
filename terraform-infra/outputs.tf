@@ -1,22 +1,11 @@
-# outputs.tf
-
-output "cluster_name" {
-  value = google_container_cluster.primary.name
+output "jenkins_vm_ip" {
+  value = google_compute_instance.jenkins.network_interface[0].access_config[0].nat_ip
 }
 
-output "cluster_endpoint" {
-  value = google_container_cluster.primary.endpoint
+output "gke_cluster_name" {
+  value = google_container_cluster.gke_cluster.name
 }
 
-output "cluster_ca_certificate" {
-  value = google_container_cluster.primary.master_auth[0].cluster_ca_certificate
-}
-
-output "service_account_email" {
-  value = google_service_account.terraform_sa.email
-}
-
-output "service_account_key" {
-  value     = google_service_account_key.terraform_sa_key.private_key
-  sensitive = true
+output "storage_bucket_name" {
+  value = google_storage_bucket.jenkins_artifacts.name
 }
