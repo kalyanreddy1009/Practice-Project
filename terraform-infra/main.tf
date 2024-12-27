@@ -42,7 +42,7 @@ resource "google_compute_instance" "jenkins" {
   name         = "jenkins-server"
   machine_type = "e2-medium"  # Adjusted to reflect the increased memory
   zone         = "us-central1-a"
-  
+allow_stopping_for_update = true  
   boot_disk {
     initialize_params {
       image = "projects/debian-cloud/global/images/family/debian-11"
